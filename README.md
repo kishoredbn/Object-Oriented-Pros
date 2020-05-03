@@ -1,7 +1,7 @@
 # Object-Oriented-Pros
 This is a repository specifically for showcasing Object Oriented Designs, Patterns and Principles. 
 
-One of the big hurdle with learning Object-Oriented programming is finding problems to solve. This repository addresses that issue.
+One of the big hurdle with learning Object-Oriented programming is finding problems to practice. While you see lot of websites curates algorithms and DS problems, which are good-to-learn, but seldom used in real world Software development. I think practicing OO has more practical implications at Work. This repository addresses that issue.
 
 Interesting problems will be shared in this repository for practicing, and welcome contributors to colleborate so that others can see, discuss, get design ideas to learn, practice and get better at it.
 
