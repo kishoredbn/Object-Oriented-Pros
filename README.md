@@ -1,17 +1,16 @@
 # Object-Oriented-Pros
 This is a repository specifically for showcasing Object Oriented Designs, Patterns and Principles. 
 
-One of the big hurdles in practicing Object-Oriented is finding problems to practice. This repository solves that problem.
+One of the big hurdle with learning Object-Oriented programming is finding problems to solve. This repository addresses that issue.
 
-Interesting problems will be shared in this repository for practicing, and would ask contributors to colleborate so that others can see, discuss, get design ideas to learn, practice and get better.
+Interesting problems will be shared in this repository for practicing, and welcome contributors to colleborate so that others can see, discuss, get design ideas to learn, practice and get better at it.
 
-Finding the right designs and choices are always personal, and are open ended topics. Different people have different preferences.
-
+Designing solutions are always personal choice, and should remain subjective topics. There can be multiple approaches to solve the same problem.
 
 Language: Not Specific to any language. 
 
 Core ideas:
 - Collaborate: Share solutions and ideas.
-- Contribute: In whatever ways you would like, keeping consistency following respository format.
+- Contribute: In whatever ways you would like, keeping consistency with rest of respository format.
 - Learn: Open issues to discuss topics. Use "Discuss" flag.
 - Be respectful.
