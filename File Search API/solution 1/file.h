@@ -1,21 +1,22 @@
 #pragma once
 
-#include "file_attributes.h"
-
 class IFile {
-    virtual void SetFileAttributes(std::shared_ptr<FileAttributes> attributes) = 0;
-    virtual std::shared_ptr<FileAttributes> GetFileAttributes() const = 0;
+    virtual void SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) = 0;
+    virtual std::unordered_map<Attributes, MetaValues> GetFileAttributes() const = 0;
 };
 
 class File : public IFile{
 private:
     class PimpFile : public FileAttributes {
     public:
-        PimpFile(std::string Name, std::string Extension, uint64_t Size)
-        : FileAttributes(Name, Extension, Size) {} };
+        PimpFile(std::unordered_map<Attributes, MetaValues> attributes)
+        : FileAttributes(attributes) {} };
+
     std::shared_ptr<PimpFile> m_attributes;
 public:
-    File(std::string Name, std::string Extension=".txt", uint64_t Size=0);
-    virtual void SetFileAttributes(std::shared_ptr<FileAttributes> attributes) override;
-    virtual std::shared_ptr<FileAttributes> GetFileAttributes() const override;
+    File(std::vector<std::tuple<Attributes, FileMetaType>> attributes);
+    bool operator==(const File &that) const;
+    virtual auto SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) -> void override;
+    virtual auto GetFileAttributes() const -> std::unordered_map<Attributes, MetaValues> override;
 };
+
