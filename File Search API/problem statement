@@ -1,0 +1,5 @@
+Design a File Search API filter based on file "name", "extension", "size".
+
+The design should be maintainable to take additional constraints.
+
+Additional requirement, implement extension to support AND, OR conditions.
