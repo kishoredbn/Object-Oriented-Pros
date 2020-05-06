@@ -6,16 +6,11 @@ File::File(std::vector<std::tuple<Attributes, FileMetaType>> attributes) {
     for(auto &iter : attributes)
     {
         auto [attribute_type, attribute_value] = iter;
+
         MetaValues metadata;
-        if(attribute_type == Attributes::Size)
-        {
-            metadata.tag = MetaValues::Tag::INT;
-        }
-        else
-        {
-            metadata.tag = MetaValues::Tag::STRING;
-        }
+        metadata.tag = GetTagType(attribute_type);
         metadata.value = attribute_value.value;
+        
         attribute_map.emplace(attribute_type, metadata);
     }
     m_attributes = std::make_shared<PimpFile>(attribute_map);

@@ -13,4 +13,4 @@ Core ideas:
 - Collaborate: Share solutions and ideas.
 - Contribute: In whatever ways you would like, keeping consistency with rest of respository format.
 - Learn: Open issues to discuss topics. Use "Discuss" flag.
-- Be respectful.
+- Open: Be respectful to others opinions. 

@@ -34,7 +34,7 @@ int main()
                             {{{Atr::Name, {"nokia"}}, {Atr::Extension, {".mp3"}}, {Atr::Size, {84}}}}
                         };
 
-    // Simple File Manager
+    // Simple file manager
     FileManager fm;
     fm.AddFiles(files);
 
@@ -43,13 +43,14 @@ int main()
     Display(fm.Search(SearchBase::Name, {"apple"}));
     Display(fm.Search(SearchBase::Name, {"nokia"}));
     
-    // file manager extension
+    // File manager extension
     FileManagerV2 fm2;
     fm2.AddFiles(files);
     
     Display(fm2.Search(SearchBase::Name, {"nokia"})); // simple search
     Display(fm2.SearchOr({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"apple"}}})); // search with OR condition
     Display(fm2.SearchOr({{SearchBase::Extension, {".mp4"}},{SearchBase::Name, {"blackberry"}}})); // search with OR condition
+
     Display(fm2.SearchAnd({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"blackberry"}}})); // search with AND condition
     Display(fm2.SearchAnd({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"nokia"}}})); // search with AND condition
     Display(fm2.SearchAnd({{SearchBase::Extension, {".log"}},{SearchBase::Name, {"apple"}}})); // search with AND condition
