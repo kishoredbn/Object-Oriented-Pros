@@ -4,13 +4,15 @@
 
 using Atr = Attributes;
 
-void Display(const std::vector<File> &files)
+template<typename T>
+void Display(const std::vector<std::shared_ptr<IFile>> &files)
 {
     if(files.empty()) std::cout<<"None\n";
     else
     for(auto &iter : files)
     {
-        auto attr = iter.GetFileAttributes();
+        auto f = std::dynamic_pointer_cast<T>(iter);
+        auto attr = f->GetFileAttributes();
         std::cout<< std::get<std::string>(attr[Atr::Name].value);
         std::cout<<std::get<std::string>(attr[Atr::Extension].value);
         std::cout<<" "<<std::get<uint64_t>(attr[Atr::Size].value)<<"\n";
@@ -20,8 +22,8 @@ void Display(const std::vector<File> &files)
 
 int main()
 {
-    // List of files to test
-    std::vector<File> files = {
+    // List of files to test - container of "concrete" objects (but we want to work with abstract types)
+    std::vector<File> vfiles = {
                             {{{Atr::Name, {"apple"}}, {Atr::Extension, {".mp3"}}, {Atr::Size, {24}}}},
                             {{{Atr::Name, {"apple"}}, {Atr::Extension, {".log"}}, {Atr::Size, {58}}}},
                             {{{Atr::Name, {"android"}}, {Atr::Extension, {".mp3"}}, {Atr::Size, {24}}}},
@@ -33,27 +35,43 @@ int main()
                             {{{Atr::Name, {"nokia"}}, {Atr::Extension, {".mp3"}}, {Atr::Size, {54}}}},
                             {{{Atr::Name, {"nokia"}}, {Atr::Extension, {".mp3"}}, {Atr::Size, {84}}}}
                         };
+    
+    // List of files to test - container of "abstract" type object-pointer
+    // Learn: Important: How to convert container of concrete types to container of abstract types
+    std::vector<std::shared_ptr<IFile>> vifiles;
+    std::transform(vfiles.begin(), vfiles.end(), std::back_inserter(vifiles), [](auto &f){
+        return std::make_shared<File>(f); // Observe : How memory transfers internally
+    });
+
+    // We are not using it anywhere, but just leaving it here for educational purpose
+    // Learn : Important: How to convert container of abstract pointer-types to concrete type
+    std::vector<File> vfiles2;
+    std::transform(vifiles.begin(), vifiles.end(), std::back_inserter(vfiles2), [](auto &i){ // for educational purpose only
+        const auto t = std::dynamic_pointer_cast<File>(i); // Observe : How memory transfers internally
+        assert(t != nullptr);
+        return *t;
+    });
 
     // Simple file manager
     FileManager fm;
-    fm.AddFiles(files);
+    fm.AddFiles(vifiles); // Remember : Always to work with abstract types
 
-    Display(fm.Search(SearchBase::Extension, {".mp3"}));
-    Display(fm.Search(SearchBase::Size, {24}));
-    Display(fm.Search(SearchBase::Name, {"apple"}));
-    Display(fm.Search(SearchBase::Name, {"nokia"}));
+    Display<File>(fm.Search(SearchBase::Extension, {".mp3"}));
+    Display<File>(fm.Search(SearchBase::Size, {24}));
+    Display<File>(fm.Search(SearchBase::Name, {"apple"}));
+    Display<File>(fm.Search(SearchBase::Name, {"nokia"}));
     
     // File manager extension
     FileManagerV2 fm2;
-    fm2.AddFiles(files);
+    fm2.AddFiles(vifiles); // Remember : Always to work with abstract types
     
-    Display(fm2.Search(SearchBase::Name, {"nokia"})); // simple search
-    Display(fm2.SearchOr({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"apple"}}})); // search with OR condition
-    Display(fm2.SearchOr({{SearchBase::Extension, {".mp4"}},{SearchBase::Name, {"blackberry"}}})); // search with OR condition
+    Display<File>(fm2.Search(SearchBase::Name, {"nokia"})); // simple search
+    Display<File>(fm2.SearchOr({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"apple"}}})); // search with OR condition
+    Display<File>(fm2.SearchOr({{SearchBase::Extension, {".mp4"}},{SearchBase::Name, {"blackberry"}}})); // search with OR condition
 
-    Display(fm2.SearchAnd({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"blackberry"}}})); // search with AND condition
-    Display(fm2.SearchAnd({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"nokia"}}})); // search with AND condition
-    Display(fm2.SearchAnd({{SearchBase::Extension, {".log"}},{SearchBase::Name, {"apple"}}})); // search with AND condition
+    Display<File>(fm2.SearchAnd({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"blackberry"}}})); // search with AND condition
+    Display<File>(fm2.SearchAnd({{SearchBase::Extension, {".mp3"}},{SearchBase::Name, {"nokia"}}})); // search with AND condition
+    Display<File>(fm2.SearchAnd({{SearchBase::Extension, {".log"}},{SearchBase::Name, {"apple"}}})); // search with AND condition
 
     return 0;
 }

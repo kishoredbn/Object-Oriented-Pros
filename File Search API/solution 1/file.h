@@ -1,9 +1,12 @@
 #pragma once
 
 class IFile {
+public:
     virtual void SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) = 0;
     virtual std::unordered_map<Attributes, MetaValues> GetFileAttributes() const = 0;
 };
+
+using spIFile = std::shared_ptr<IFile>;
 
 class File : public IFile{
 private:
@@ -15,8 +18,6 @@ private:
     std::shared_ptr<PimpFile> m_attributes;
 public:
     File(std::vector<std::tuple<Attributes, FileMetaType>> attributes);
-    bool operator==(const File &that) const;
     virtual auto SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) -> void override;
     virtual auto GetFileAttributes() const -> std::unordered_map<Attributes, MetaValues> override;
 };
-

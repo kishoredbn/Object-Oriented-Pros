@@ -4,19 +4,20 @@ enum class Tag : uint8_t {STRING, INT}; // Type of file attributes
 
 #define ATTRIBUTE CODE(Name,       Tag::STRING) \
                   CODE(Extension,  Tag::STRING) \
-                  CODE(Size,       Tag::INT)    \
-                  CODE(Creation,   Tag::STRING) \
-                  CODE(Expiration, Tag::STRING) // extend attributes with more fields here
+                  CODE(Size,       Tag::INT) // extend attributes with more fields here
 
 #undef CODE
-#define CODE(name, type) name, // Expands here as enums
-enum class Attributes : uint64_t { ATTRIBUTE 
+#define CODE(name, type) name,
+enum class Attributes : uint64_t { ATTRIBUTE // Expands here as enums
                                    Default};
+
+using SearchBase = Attributes;
+
 #undef CODE
-#define CODE(name, type) case Attributes::name: return type; // expands here as switch-case
+#define CODE(name, type) case Attributes::name: return type;
 constexpr Tag GetTagType(const Attributes attri) {
     switch(attri) {
-        ATTRIBUTE
+        ATTRIBUTE // expands here as switch-case
         default: return Tag::INT;
     }
 }

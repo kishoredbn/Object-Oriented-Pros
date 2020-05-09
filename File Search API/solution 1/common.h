@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <tuple>
 #include <variant>
+#include <memory>
 
 #include "file_attributes.h"
 #include "file.h"

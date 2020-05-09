@@ -16,12 +16,6 @@ File::File(std::vector<std::tuple<Attributes, FileMetaType>> attributes) {
     m_attributes = std::make_shared<PimpFile>(attribute_map);
 }
 
-bool File::operator==(const File &that) const {
-       return m_attributes->metadata[Attributes::Name] == that.m_attributes->metadata[Attributes::Name] &&
-              m_attributes->metadata[Attributes::Extension] == that.m_attributes->metadata[Attributes::Extension] &&
-              m_attributes->metadata[Attributes::Size] == that.m_attributes->metadata[Attributes::Size];
-}
-
 // Change file  attributes
 void File::SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) {
     for(auto &iter : attributes)
@@ -35,4 +29,3 @@ std::unordered_map<Attributes, MetaValues>  File::GetFileAttributes() const {
     std::unordered_map<Attributes, MetaValues>  ret = m_attributes->metadata;
     return ret;
 }
-
