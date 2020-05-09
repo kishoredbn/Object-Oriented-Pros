@@ -20,13 +20,13 @@ struct FileManagerV2::TEqual {
 };
 
 // extending FileManager::Search
-auto FileManagerV2::SearchOr(std::vector<std::tuple<SearchBase, FileMetaType>> vsearch) -> std::vector<spIFile> {
+auto FileManagerV2::SearchOr(std::vector<SearchBase> vsearch) -> std::vector<spIFile> {
     std::vector<spIFile> ret;
     if(vsearch.empty()) return ret;
     
     std::unordered_set<std::shared_ptr<IFile>, THash, TEqual> unique_entries; // store NO duplicates
     for (auto &iter : vsearch) {
-        auto files = Search(std::get<0>(iter), std::get<1>(iter));
+        auto files = Search(iter);
         for(auto file : files) {
             unique_entries.emplace(file);
         }
@@ -38,21 +38,20 @@ auto FileManagerV2::SearchOr(std::vector<std::tuple<SearchBase, FileMetaType>> v
 }
 
 // extending FileManager::Search
-auto FileManagerV2::SearchAnd(std::vector<std::tuple<SearchBase, FileMetaType>> vsearch) -> std::vector<spIFile> {
+auto FileManagerV2::SearchAnd(std::vector<SearchBase> vsearch) -> std::vector<spIFile> {
     std::vector<spIFile> ret;
     if(vsearch.empty()) return ret;
     
     auto iter = vsearch.begin();
-    std::vector<std::shared_ptr<IFile>> entries1 = Search(std::get<0>(*iter), std::get<1>(*iter)); // get first set of Files following 1st search criteria
+    std::vector<std::shared_ptr<IFile>> entries1 = Search(*iter); // get first set of Files following 1st search criteria
     for (++iter; iter != vsearch.end(); iter++) {
         ret.clear();
-        auto entries2 = Search(std::get<0>(*iter), std::get<1>(*iter)); // get N set of files following Nth search criteria
-        for (auto &file1 : entries1) {
-            for (auto &file2 : entries2) {
-                if(file1 == file2) ret.emplace_back(file1); // iterate over each list and check for commons
-            }
-        }
+        auto entries2 = Search(*iter); // get N set of files following Nth search criteria
         
+        for (auto &file1 : entries1)
+            for (auto &file2 : entries2)
+                if(file1 == file2) ret.emplace_back(file1); // iterate over each list and check for commons
+                
         entries1 = std::vector<std::shared_ptr<IFile>>(ret);
     }
     

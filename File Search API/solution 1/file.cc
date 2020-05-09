@@ -7,10 +7,7 @@ File::File(std::vector<std::tuple<Attributes, FileMetaType>> attributes) {
     {
         auto [attribute_type, attribute_value] = iter;
 
-        MetaValues metadata;
-        metadata.tag = GetTagType(attribute_type);
-        metadata.value = attribute_value.value;
-        
+        MetaValues metadata(attribute_value.value, GetTagType(attribute_type));
         attribute_map.emplace(attribute_type, metadata);
     }
     m_attributes = std::make_shared<PimpFile>(attribute_map);

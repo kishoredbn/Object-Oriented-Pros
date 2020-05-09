@@ -9,10 +9,9 @@ enum class Tag : uint8_t {STRING, INT}; // Type of file attributes
 #undef CODE
 #define CODE(name, type) name,
 enum class Attributes : uint64_t { ATTRIBUTE // Expands here as enums
-                                   Default};
+                                   Default };
 
 using Atr = Attributes; // short-form notation
-using SearchBase = Attributes; // contextual notation
 
 #undef CODE
 #define CODE(name, type) case Attributes::name: return type;
@@ -25,6 +24,8 @@ constexpr Tag GetTagType(const Attributes attri) {
 
 struct FileMetaType {
     std::variant<std::string, uint64_t> value;
+    FileMetaType() {}
+    FileMetaType(std::variant<std::string, uint64_t> value) : value(value) {}
 };
 
 struct MetaValues : public FileMetaType {
@@ -40,7 +41,21 @@ struct MetaValues : public FileMetaType {
         }
         return false;
     }
+    MetaValues() {}
+    MetaValues(FileMetaType attribute_value, Tag tag) 
+        : FileMetaType(attribute_value), tag(tag) {}
 };
+
+struct SearchBase {
+    std::tuple<Attributes, MetaValues> metadata;
+    SearchBase(Attributes attributes, FileMetaType metavalue)
+        : metadata(std::make_tuple(attributes, MetaValues(metavalue, GetTagType(attributes)))) {}
+    bool operator==(const SearchBase &that) const {
+        return metadata == that.metadata;
+    }
+};
+
+using SearchBy = SearchBase;
 
 struct FileAttributes {
     std::unordered_map<Attributes, MetaValues> metadata; // core idea of this solution : representing attributes as key-value pair

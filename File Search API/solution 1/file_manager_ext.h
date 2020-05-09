@@ -7,6 +7,6 @@ private:
     struct TEqual;
     
 public:
-    virtual auto SearchOr(std::vector<std::tuple<SearchBase, FileMetaType>> vsearch) -> std::vector<spIFile>;
-    virtual auto SearchAnd(std::vector<std::tuple<SearchBase, FileMetaType>> vsearch) -> std::vector<spIFile>;
+    virtual auto SearchOr(std::vector<SearchBase> vsearch) -> std::vector<spIFile>;
+    virtual auto SearchAnd(std::vector<SearchBase> vsearch) -> std::vector<spIFile>;
 };

@@ -5,7 +5,7 @@ struct PimpFileManager;
 class IFileManager {
 public:
     virtual auto AddFiles(std::vector<spIFile> vifiles) -> void = 0;
-    virtual auto Search(SearchBase search_base, FileMetaType search_value) -> std::vector<spIFile> = 0;
+    virtual auto Search(SearchBase search_base) -> std::vector<spIFile> = 0;
 };
 
 using spIFileManager = std::shared_ptr<IFileManager>;
@@ -17,5 +17,5 @@ private:
 public:
     FileManager();
     virtual auto AddFiles(std::vector<spIFile> vifiles) -> void override;
-    virtual auto Search(SearchBase search_base, FileMetaType search_value) -> std::vector<spIFile> override;
+    virtual auto Search(SearchBase search_base) -> std::vector<spIFile> override;
 };
