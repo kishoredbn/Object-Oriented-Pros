@@ -2,8 +2,6 @@
 
 #include "common.h"
 
-using Atr = Attributes;
-
 template<typename T>
 void Display(const std::vector<std::shared_ptr<IFile>> &files)
 {

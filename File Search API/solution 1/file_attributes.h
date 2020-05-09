@@ -11,7 +11,8 @@ enum class Tag : uint8_t {STRING, INT}; // Type of file attributes
 enum class Attributes : uint64_t { ATTRIBUTE // Expands here as enums
                                    Default};
 
-using SearchBase = Attributes;
+using Atr = Attributes; // short-form notation
+using SearchBase = Attributes; // contextual notation
 
 #undef CODE
 #define CODE(name, type) case Attributes::name: return type;
