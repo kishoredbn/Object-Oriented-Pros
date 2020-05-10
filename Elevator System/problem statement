@@ -1,0 +1,13 @@
+Design an Elevator.
+
+High level interface:
+
+Interface IElevator {
+    startMovingUp();
+    startMovingDown();
+    isApproachingFloor();
+}
+
+Advanced:
+- take care of "OnEmergency" situations
+- Optimizations

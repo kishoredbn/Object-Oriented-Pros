@@ -1,0 +1,4 @@
+You are given a XML file you need to parse the XML tags, attributes and values to objects-based representation.
+
+Advanced:
+How will you handle invalid XML formatting.

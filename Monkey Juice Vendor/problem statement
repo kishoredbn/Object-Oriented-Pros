@@ -1,0 +1,9 @@
+Monkey juice maker:
+
+There is a smart monkey very good at making fruit juice. He has several blenders to work with to prepare juice.
+
+Design a system where a customer can go to a Monkey Blender maker and ask to make juice. 
+
+Advance:
+The order or making juice can vary. In one scenario, Monkey wants to make juice in the order of his preferred list of Juice first (which is a blend can be made up of same fruits). 
+While in order cases monkey would want to make juice of assorted items.

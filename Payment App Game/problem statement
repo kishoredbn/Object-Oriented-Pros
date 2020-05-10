@@ -1,0 +1,14 @@
+You are asked to design a game-based money transfer application.
+
+Here is how it works:
+1. When User perform the first trannsaction of sending actual curreny to a sender - both sender and reeiver gets 100 Virtual SuperCoins.
+2. In all the successive transactions, only the sender receives some Gifts randomly.
+3. These Gifts are virtual Super Weapons:
+-- Balloon [10 SuperCoins]
+-- Water Gun [20 SuperCoins]
+-- Candy Bombs [30 SuperCoins]
+4. User can uses their Weapons to attack other users, and  capture that many corrosponding SuperCoins from the other users SuperCoin balance. 
+5. After collecting certain number of SuperCoins, you can one-way transfer them to actual currency, say 1,00,000 = $1.
+
+Advanced:
+Address race conditions.
