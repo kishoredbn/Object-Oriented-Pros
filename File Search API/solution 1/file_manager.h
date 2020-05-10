@@ -1,7 +1,5 @@
 #pragma once
 
-struct PimpFileManager;
-
 class IFileManager {
 public:
     virtual auto AddFiles(std::vector<spIFile> vifiles) -> void = 0;
@@ -12,6 +10,7 @@ using spIFileManager = std::shared_ptr<IFileManager>;
 
 class FileManager : public IFileManager {
 private:
+    struct PimpFileManager;
     std::shared_ptr<PimpFileManager> m_attributes;
 
 public:

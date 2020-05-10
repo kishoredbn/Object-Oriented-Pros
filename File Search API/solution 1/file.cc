@@ -1,6 +1,11 @@
 #include "common.h"
 #include "file.h"
 
+struct File::PimpFile : public FileAttributes {
+        PimpFile(std::unordered_map<Attributes, MetaValues> attributes)
+            : FileAttributes(attributes) {}
+};
+
 File::File(std::vector<std::tuple<Attributes, FileMetaType>> attributes) {
     std::unordered_map<Attributes, MetaValues> attribute_map;
     for(auto &iter : attributes)

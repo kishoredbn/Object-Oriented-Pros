@@ -1,7 +1,7 @@
 #include "common.h"
 #include "file_manager.h"
 
-struct PimpFileManager {
+struct FileManager::PimpFileManager {
     std::vector<spIFile> container;
 };
 

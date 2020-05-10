@@ -10,11 +10,7 @@ using spIFile = std::shared_ptr<IFile>;
 
 class File : public IFile{
 private:
-    class PimpFile : public FileAttributes {
-    public:
-        PimpFile(std::unordered_map<Attributes, MetaValues> attributes)
-        : FileAttributes(attributes) {} };
-
+    struct PimpFile;
     std::shared_ptr<PimpFile> m_attributes;
 public:
     File(std::vector<std::tuple<Attributes, FileMetaType>> attributes);
