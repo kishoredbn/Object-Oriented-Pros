@@ -4,6 +4,7 @@ class IFile {
 public:
     virtual void SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) = 0;
     virtual std::unordered_map<Attributes, MetaValues> GetFileAttributes() const = 0;
+    virtual ~IFile(){}
 };
 
 using spIFile = std::shared_ptr<IFile>;
