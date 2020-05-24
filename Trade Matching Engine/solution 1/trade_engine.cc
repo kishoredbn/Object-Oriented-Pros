@@ -33,41 +33,6 @@ auto CTradeEngine::PerformTrade(spITradeOrder order) -> void {
     }
 }
 
-auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction ledger_curr_order_type) -> void {
-
-    auto &buying_order = exchange_map[OrderAction::BUY]; // reference to BUY order from exchange map
-    uint64_t *buying_order_price = std::get<0>(buying_order); // reference to map order price buying
-    uint64_t *buying_order_quantity = std::get<1>(buying_order); // reference to map order quantity buying
-
-    auto &selling_order = exchange_map[OrderAction::SELL]; // reference to SELL order from exchange map
-    uint64_t *selling_order_price = std::get<0>(selling_order); // reference to map order price selling
-    uint64_t *selling_order_quantity = std::get<1>(selling_order); // reference to map order quantity selling
-
-    // move from reference type to value type for calculations
-    uint64_t buy_quantity  = (*buying_order_quantity);
-    uint64_t sell_quantity = (*selling_order_quantity);
-
-    // buying price more than cost price
-    if(*buying_order_price  >= *selling_order_price) {
-        uint64_t min_quantity = ( buy_quantity > sell_quantity ) ? sell_quantity : buy_quantity ;
-        buy_quantity -= min_quantity;
-        sell_quantity -= min_quantity;
-
-        *buying_order_quantity = buy_quantity;
-        *selling_order_quantity = sell_quantity;
-
-        // make an enry to the transaction table
-        // ledger order details first, followed by new order details
-        tuple_transaction transaction_tuple = std::make_tuple(*std::get<2>(exchange_map[ledger_curr_order_type]), // order id
-                                                              *std::get<0>(exchange_map[ledger_curr_order_type]), // price of orders
-                                                              min_quantity,                                       // quantity exchanged
-                                                              *std::get<2>(exchange_map[Exchange(ledger_curr_order_type)]), // order id
-                                                              *std::get<0>(exchange_map[Exchange(ledger_curr_order_type)]), // price of orders
-                                                              min_quantity);                                                // quantity exchanged
-        m_attribute->trade_orders.emplace_back(std::make_shared<CTradeTransaction>(transaction_tuple));
-    }
-}
-
 auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
 
     m_attribute->trade_orders.clear();
@@ -117,43 +82,14 @@ auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
 }
 
 auto CTradeEngine::PerformCancel(UmAtrMeta order_atr) -> void {
-    auto give_order_iter = order_atr.find(Attributes::OrderId);
-    if(give_order_iter == order_atr.end()) return;
-
-    auto give_order_id = std::get<std::string>(give_order_iter->second.value);
-    auto find_clear_match = std::find_if(std::begin(m_attribute->orders), std::end(m_attribute->orders), [&](auto &iter){
-        auto iter_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
-        auto iter_attr_map = iter_order->GetOrderAttributes();
-        auto iter_attr_find = iter_attr_map.find(Attributes::OrderId);
-        if(iter_attr_find == iter_attr_map.end()) return false;
-        auto iter_attr_order_id = std::get<std::string>(iter_attr_find->second.value);
-        if(iter_attr_order_id == give_order_id) return true;
-        return false;
-    });
+    auto find_clear_match = GetOrderLedgerItrator(order_atr);
 
     if(find_clear_match == m_attribute->orders.end()) return;
-
     m_attribute->orders.erase(find_clear_match);
 }
 
 auto CTradeEngine::PerformModify(UmAtrMeta order_atr) -> void {
-    auto given_order_iter = order_atr.find(Attributes::OrderId);
-    if(given_order_iter == order_atr.end()) return;
-
-    auto given_order_id = std::get<std::string>(given_order_iter->second.value);
-    auto find_clear_match = std::find_if(std::begin(m_attribute->orders), std::end(m_attribute->orders), [&](auto &iter) {
-        auto iter_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
-        assert(iter_order);
-
-        auto iter_attr_map = iter_order->GetOrderAttributes();
-        auto iter_attr_find = iter_attr_map.find(Attributes::OrderId);
-
-        if(iter_attr_find == iter_attr_map.end()) return false;
-
-        auto iter_attr_order_id = std::get<std::string>(iter_attr_find->second.value);
-        if(iter_attr_order_id == given_order_id) return true;
-        return false;
-    });
+    auto find_clear_match = GetOrderLedgerItrator(order_atr);
 
     if(find_clear_match == m_attribute->orders.end()) return;
 
@@ -171,6 +107,66 @@ auto CTradeEngine::PerformModify(UmAtrMeta order_atr) -> void {
     
     spITradeOrder new_order_obj = std::make_shared<CTradeOrder>(new_order);
     m_attribute->orders.emplace_back(new_order_obj);
+}
+
+auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction ledger_curr_order_type) -> void {
+
+    auto &buying_order = exchange_map[OrderAction::BUY]; // reference to BUY order from exchange map
+    uint64_t *buying_order_price = std::get<0>(buying_order); // reference to map order price buying
+    uint64_t *buying_order_quantity = std::get<1>(buying_order); // reference to map order quantity buying
+
+    auto &selling_order = exchange_map[OrderAction::SELL]; // reference to SELL order from exchange map
+    uint64_t *selling_order_price = std::get<0>(selling_order); // reference to map order price selling
+    uint64_t *selling_order_quantity = std::get<1>(selling_order); // reference to map order quantity selling
+
+    // move from reference type to value type for calculations
+    uint64_t buy_quantity  = (*buying_order_quantity);
+    uint64_t sell_quantity = (*selling_order_quantity);
+
+    // buying price more than cost price
+    if(*buying_order_price  >= *selling_order_price) {
+        uint64_t min_quantity = ( buy_quantity > sell_quantity ) ? sell_quantity : buy_quantity ;
+        buy_quantity -= min_quantity;
+        sell_quantity -= min_quantity;
+
+        *buying_order_quantity = buy_quantity;
+        *selling_order_quantity = sell_quantity;
+
+        // make an enry to the transaction table
+        // ledger order details first, followed by new order details
+        tuple_transaction transaction_tuple = std::make_tuple(*std::get<2>(exchange_map[ledger_curr_order_type]), // order id
+                                                              *std::get<0>(exchange_map[ledger_curr_order_type]), // price of orders
+                                                              min_quantity,                                       // quantity exchanged
+                                                              *std::get<2>(exchange_map[Exchange(ledger_curr_order_type)]), // order id
+                                                              *std::get<0>(exchange_map[Exchange(ledger_curr_order_type)]), // price of orders
+                                                              min_quantity);                                                // quantity exchanged
+        m_attribute->trade_orders.emplace_back(std::make_shared<CTradeTransaction>(transaction_tuple));
+    }
+}
+
+auto CTradeEngine::GetOrderLedgerItrator(UmAtrMeta& order_atr) -> OrderIter {
+    auto find_clear_match = std::end(m_attribute->orders);
+
+    auto give_order_iter = order_atr.find(Attributes::OrderId);
+    if(give_order_iter == order_atr.end()) return find_clear_match;
+
+    auto give_order_id = std::get<std::string>(give_order_iter->second.value);
+
+    find_clear_match = std::find_if(std::begin(m_attribute->orders), std::end(m_attribute->orders), [&](auto &iter){
+        auto iter_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
+        assert(iter_order);
+
+        auto iter_attr_map = iter_order->GetOrderAttributes();
+        auto iter_attr_find = iter_attr_map.find(Attributes::OrderId);
+
+        if(iter_attr_find == iter_attr_map.end()) return false;
+
+        auto iter_attr_order_id = std::get<std::string>(iter_attr_find->second.value);
+        if(iter_attr_order_id == give_order_id) return true;
+        return false;
+    });
+
+    return find_clear_match;
 }
 
 auto CTradeEngine::GetAllOrderLists() -> void {
@@ -194,7 +190,8 @@ auto CTradeEngine::GetAllOrderLists() -> void {
         auto order_arg = order_obj->GetOrderAttributes();
         sell_price_max_heap.pop();
 
-        std::cout<< std::get<uint64_t>(order_arg[Attributes::Price].value) <<" "<< std::get<uint64_t>(order_arg[Attributes::Quantity].value)<<"\n";
+        std::cout<< std::get<uint64_t>(order_arg[Attributes::Price].value) 
+            <<" "<< std::get<uint64_t>(order_arg[Attributes::Quantity].value)<<"\n";
     }
 
     std::cout<<"BUY:\n";
@@ -203,7 +200,8 @@ auto CTradeEngine::GetAllOrderLists() -> void {
         auto order_arg = order_obj->GetOrderAttributes();
         buy_price_max_heap.pop();
 
-        std::cout<< std::get<uint64_t>(order_arg[Attributes::Price].value) <<" "<< std::get<uint64_t>(order_arg[Attributes::Quantity].value)<<"\n";
+        std::cout<< std::get<uint64_t>(order_arg[Attributes::Price].value) 
+            <<" "<< std::get<uint64_t>(order_arg[Attributes::Quantity].value)<<"\n";
     }
 }
 

@@ -13,7 +13,12 @@ CTradeTransaction::CTradeTransaction(tuple_transaction transaction)
 
 auto CTradeTransaction::ShowResult() const -> void {
     auto order = m_attributes->transaction;
-    std::cout<<"TRADE "<<std::get<0>(order)<<" "<<std::get<1>(order)<<" "<<std::get<2>(order)<<" "<<std::get<3>(order)<<" "<<std::get<4>(order)<<" "<<std::get<5>(order)<<"\n";
+    std::cout<<"TRADE "<<std::get<0>(order)        // order id 1
+                  <<" "<<std::get<1>(order)        // order price 1
+                  <<" "<<std::get<2>(order)        // order quantity 1
+                  <<" "<<std::get<3>(order)        // order id 2
+                  <<" "<<std::get<4>(order)        // order price 2
+                  <<" "<<std::get<5>(order)<<"\n"; // order quantity 2
 }
 
 struct CTradeOrder::PimpOrderAttributes {
