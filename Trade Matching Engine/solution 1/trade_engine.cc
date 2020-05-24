@@ -33,6 +33,41 @@ auto CTradeEngine::PerformTrade(spITradeOrder order) -> void {
     }
 }
 
+auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction ledger_curr_order_type) -> void {
+
+    auto &buying_order = exchange_map[OrderAction::BUY]; // reference to BUY order from exchange map
+    uint64_t *buying_order_price = std::get<0>(buying_order); // reference to map order price buying
+    uint64_t *buying_order_quantity = std::get<1>(buying_order); // reference to map order quantity buying
+
+    auto &selling_order = exchange_map[OrderAction::SELL]; // reference to SELL order from exchange map
+    uint64_t *selling_order_price = std::get<0>(selling_order); // reference to map order price selling
+    uint64_t *selling_order_quantity = std::get<1>(selling_order); // reference to map order quantity selling
+
+    // move from reference type to value type for calculations
+    uint64_t buy_quantity  = (*buying_order_quantity);
+    uint64_t sell_quantity = (*selling_order_quantity);
+
+    // buying price more than cost price
+    if(*buying_order_price  >= *selling_order_price) {
+        uint64_t min_quantity = ( buy_quantity > sell_quantity ) ? sell_quantity : buy_quantity ;
+        buy_quantity -= min_quantity;
+        sell_quantity -= min_quantity;
+
+        *buying_order_quantity = buy_quantity;
+        *selling_order_quantity = sell_quantity;
+
+        // make an enry to the transaction table
+        // ledger order details first, followed by new order details
+        tuple_transaction transaction_tuple = std::make_tuple(*std::get<2>(exchange_map[ledger_curr_order_type]), // order id
+                                                              *std::get<0>(exchange_map[ledger_curr_order_type]), // price of orders
+                                                              min_quantity,                                       // quantity exchanged
+                                                              *std::get<2>(exchange_map[Exchange(ledger_curr_order_type)]), // order id
+                                                              *std::get<0>(exchange_map[Exchange(ledger_curr_order_type)]), // price of orders
+                                                              min_quantity);                                                // quantity exchanged
+        m_attribute->trade_orders.emplace_back(std::make_shared<CTradeTransaction>(transaction_tuple));
+    }
+}
+
 auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
 
     m_attribute->trade_orders.clear();
@@ -46,44 +81,28 @@ auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
     auto &order_quantity = std::get<uint64_t>(order_atr[Attributes::Quantity].value);
     auto &order_orderid = std::get<std::string>(order_atr[Attributes::OrderId].value);
 
-    std::vector<std::vector<spITradeOrder>::iterator> remove_list;
-    
-    std::unordered_map<OrderAction, std::tuple<uint64_t*, uint64_t*>> price_point_map;
-    price_point_map[order_atr_action_val] = {&order_price, &order_quantity};
+    VOrderIter remove_orders;
+    UmExchange price_point_map;
+    price_point_map[order_atr_action_val] = {&order_price, &order_quantity, &order_orderid};
     for(auto iter = m_attribute->orders.begin(); iter != m_attribute->orders.end(); iter++) {
         auto order_list_each = std::dynamic_pointer_cast<CTradeOrder>(*iter);
         auto order_list_atr = order_list_each->GetOrderAttributes();
+
         auto order_list_find = order_list_atr.find(Attributes::Action);
         if(order_list_find != order_list_atr.end()) {
 
             auto list_order_type = std::get<OrderAction>(order_list_find->second.value);
-            if(list_order_type == exchange_type) {
+            if(list_order_type == exchange_type) { // check if exchange possible
 
                 auto &list_price = std::get<uint64_t>(order_list_atr[Attributes::Price].value);
                 auto &list_quantity = std::get<uint64_t>(order_list_atr[Attributes::Quantity].value);
                 auto &list_orderid = std::get<std::string>(order_list_atr[Attributes::OrderId].value);
 
-                price_point_map[list_order_type] = {&list_price, &list_quantity};
+                price_point_map[list_order_type] = {&list_price, &list_quantity, &list_orderid};
 
-                auto &buying_order = price_point_map[OrderAction::BUY];
-                uint64_t *buying_order_price = std::get<0>(buying_order);
-                uint64_t *buying_order_quantity = std::get<1>(buying_order);
+                PerformExchangeOrders(price_point_map, list_order_type);
 
-                auto &selling_order = price_point_map[OrderAction::SELL];
-                uint64_t *selling_order_price = std::get<0>(selling_order);
-                uint64_t *selling_order_quantity = std::get<1>(selling_order);
-
-                if(*buying_order_price  >= *selling_order_price) {
-                    uint64_t min_quantity = (*buying_order_quantity > *selling_order_quantity ) ? (*selling_order_quantity) : (*buying_order_quantity) ;
-                    uint64_t new_buy_quantity  = (*buying_order_quantity)  - min_quantity;
-                    uint64_t new_sell_quantity = (*selling_order_quantity) - min_quantity;
-                    *buying_order_quantity = new_buy_quantity;
-                    *selling_order_quantity = new_sell_quantity;
-                    tuple_transaction transaction_tuple = std::make_tuple(list_orderid, list_price, min_quantity, order_orderid, order_price, min_quantity);
-                    m_attribute->trade_orders.emplace_back(std::make_shared<CTradeTransaction>(transaction_tuple));
-                }
-
-                if(list_quantity == 0) remove_list.emplace_back(iter);
+                if(list_quantity == 0) remove_orders.emplace_back(iter);
                 if(order_quantity == 0) break;
 
                 price_point_map.erase(price_point_map.find(list_order_type));
@@ -92,7 +111,7 @@ auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
     }
 
     if(order_quantity && order_type != OrderType::IOC) m_attribute->orders.emplace_back(std::make_shared<CTradeOrder>(order_atr));
-    for(auto &iter : remove_list) m_attribute->orders.erase(iter);
+    for(auto &iter : remove_orders) m_attribute->orders.erase(iter);
 
     GetTransactionOutput();
 }
