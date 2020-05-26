@@ -9,20 +9,21 @@ struct CTradeEngine::PimpAttribute {
 CTradeEngine::CTradeEngine()
     : m_attribute(std::make_shared<PimpAttribute>()) {}
 
+// Calls specific trade actions based on user input
 auto CTradeEngine::PerformTrade(spITradeOrder order) -> void {
 
     if(!order) return;
 
     auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(order);
     auto order_atr = order_obj->GetOrderAttributes();
-    auto order_atr_find = order_atr.find(Attributes::Action);
+    auto order_atr_find = order_atr.find(Attributes::Action); // check used input for action
 
-    if(order_atr_find == order_atr.end()) return;
+    if(order_atr_find == order_atr.end()) return; // if not a valid input exit function
 
     auto order_atr_val_var = order_atr_find->second.value;
-    auto order_atr_val = std::get<OrderAction>(order_atr_val_var);
+    auto order_atr_val = std::get<OrderAction>(order_atr_val_var); // get the action value
 
-    switch (order_atr_val)
+    switch (order_atr_val) // call specific function based on user input
     {
         case OrderAction::BUY: PerformTransaction(order_atr); break;
         case OrderAction::SELL: PerformTransaction(order_atr); break;
@@ -33,82 +34,97 @@ auto CTradeEngine::PerformTrade(spITradeOrder order) -> void {
     }
 }
 
+// For every BUY/SELL actions, check if a trade is possible or not
+// If trade is NOT possible, then make an entry to the ledger for future use
+// If trade is possible, perform the trade and remove orders from the ledger
+// If trade is partially-possible, then update ledger accordingly
 auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
 
-    m_attribute->trade_orders.clear();
+    m_attribute->trade_orders.clear(); // remove any previous transaction history
 
     auto order_atr_action = order_atr[Attributes::Action];
-    auto order_atr_action_val = std::get<OrderAction>(order_atr_action.value);
-    auto exchange_type = Exchange(order_atr_action_val);
+    auto order_atr_action_val = std::get<OrderAction>(order_atr_action.value); // check the new order action type
+    auto exchange_type = Exchange(order_atr_action_val); // get the exchange action type, ie. if BUY -> SELL, SELL -> BUY
 
+    // get all attributes/parameters of the new orders
     auto &order_price = std::get<uint64_t>(order_atr[Attributes::Price].value);
     auto &order_type = std::get<OrderType>(order_atr[Attributes::OrderType].value);
     auto &order_quantity = std::get<uint64_t>(order_atr[Attributes::Quantity].value);
     auto &order_orderid = std::get<std::string>(order_atr[Attributes::OrderId].value);
 
-    VOrderIter remove_orders;
-    UmExchange price_point_map;
-    price_point_map[order_atr_action_val] = {&order_price, &order_quantity, &order_orderid};
-    for(auto iter = m_attribute->orders.begin(); iter != m_attribute->orders.end(); iter++) {
-        auto order_list_each = std::dynamic_pointer_cast<CTradeOrder>(*iter);
-        auto order_list_atr = order_list_each->GetOrderAttributes();
+    VOrderIter remove_orders; // upon success completion of orders, make an entry of iters here to remove them from ledge later
+    UmExchange price_point_map; // helper reference map to exchange BUY & SELL orders, using references to orders
+    price_point_map[order_atr_action_val] = {&order_price, &order_quantity, &order_orderid}; // enter new order details to reference map
+    for(auto iter = m_attribute->orders.begin(); iter != m_attribute->orders.end(); iter++) { // for all orders in the ledger
+        auto order_list_each = std::dynamic_pointer_cast<CTradeOrder>(*iter); // get the concrete order type
+        auto order_list_atr = order_list_each->GetOrderAttributes(); // get the order attributes
 
-        auto order_list_find = order_list_atr.find(Attributes::Action);
+        auto order_list_find = order_list_atr.find(Attributes::Action); // check for specific action types
         if(order_list_find != order_list_atr.end()) {
 
             auto list_order_type = std::get<OrderAction>(order_list_find->second.value);
             if(list_order_type == exchange_type) { // check if exchange possible
 
+                // get all attributes/parameters of each ledge orders
                 auto &list_price = std::get<uint64_t>(order_list_atr[Attributes::Price].value);
                 auto &list_quantity = std::get<uint64_t>(order_list_atr[Attributes::Quantity].value);
                 auto &list_orderid = std::get<std::string>(order_list_atr[Attributes::OrderId].value);
 
+                // enter ledger order details to reference map
                 price_point_map[list_order_type] = {&list_price, &list_quantity, &list_orderid};
 
+                // Perform order exchange
                 PerformExchangeOrders(price_point_map, list_order_type);
 
-                if(list_quantity == 0) remove_orders.emplace_back(iter);
-                if(order_quantity == 0) break;
+                if(list_quantity == 0) remove_orders.emplace_back(iter); // if ledger order is done, then mark for deletion
+                if(order_quantity == 0) break; // if new order is complete then break
 
                 price_point_map.erase(price_point_map.find(list_order_type));
             }
         }
     }
 
+    // if new order is NNOT complete and is not of type IOC, then make an entry to the ledger
     if(order_quantity && order_type != OrderType::IOC) m_attribute->orders.emplace_back(std::make_shared<CTradeOrder>(order_atr));
-    for(auto &iter : remove_orders) m_attribute->orders.erase(iter);
+    for(auto &iter : remove_orders) m_attribute->orders.erase(iter); // remove the existing completed orders from the ledger
 
-    GetTransactionOutput();
+    GetTransactionOutput(); // output transaction details, if any occured
 }
 
+// To CANCEL an order from the ledger
 auto CTradeEngine::PerformCancel(UmAtrMeta order_atr) -> void {
-    auto find_clear_match = GetOrderLedgerItrator(order_atr);
+    auto find_clear_match = GetOrderLedgerItrator(order_atr); // get ledger index iterator
 
-    if(find_clear_match == m_attribute->orders.end()) return;
-    m_attribute->orders.erase(find_clear_match);
+    if(find_clear_match == m_attribute->orders.end()) return; // if not valid exit
+    m_attribute->orders.erase(find_clear_match); // or, remove an order from the ledger
 }
 
+// To MODIFY an order in the ledger
 auto CTradeEngine::PerformModify(UmAtrMeta order_atr) -> void {
-    auto find_clear_match = GetOrderLedgerItrator(order_atr);
+    auto find_clear_match = GetOrderLedgerItrator(order_atr); // get ledger index iterator
 
-    if(find_clear_match == m_attribute->orders.end()) return;
+    if(find_clear_match == m_attribute->orders.end()) return; // if not valid exit
 
-    UmAtrMeta new_order;
+    UmAtrMeta new_order; // create a new order attribute map to store new order details
     auto order_atr_change = std::dynamic_pointer_cast<CTradeOrder>(*find_clear_match);
     auto order_atr_change_map = order_atr_change->GetOrderAttributes();
 
+    // set all new order attribute details to attribute map
     new_order[Attributes::OrderType] = order_atr_change_map[Attributes::OrderType];
     new_order[Attributes::Action] = order_atr[Attributes::ActionNew];
     new_order[Attributes::Price] = order_atr[Attributes::Price];
     new_order[Attributes::Quantity] = order_atr[Attributes::Quantity];
     new_order[Attributes::OrderId] = order_atr[Attributes::OrderId];
 
-    m_attribute->orders.erase(find_clear_match);
+    m_attribute->orders.erase(find_clear_match); // remove old order entry
     
-    spITradeOrder new_order_obj = std::make_shared<CTradeOrder>(new_order);
-    m_attribute->orders.emplace_back(new_order_obj);
+    // Remember: we work with only abstract type, NOT concrete types
+    spITradeOrder new_order_obj = std::make_shared<CTradeOrder>(new_order); // create new order abstract objects
+    m_attribute->orders.emplace_back(new_order_obj); // insert abstract type to the ledger
 }
 
+// Perform order exchange on order "references"
+// any changes on the order attributes directly changes orders in the ledger
 auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction ledger_curr_order_type) -> void {
 
     auto &buying_order = exchange_map[OrderAction::BUY]; // reference to BUY order from exchange map
@@ -144,14 +160,16 @@ auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction l
     }
 }
 
+// iterate over the ledge to find a specific order, searched based on order id and then return the iterator if found
 auto CTradeEngine::GetOrderLedgerItrator(UmAtrMeta& order_atr) -> OrderIter {
     auto find_clear_match = std::end(m_attribute->orders);
 
     auto give_order_iter = order_atr.find(Attributes::OrderId);
     if(give_order_iter == order_atr.end()) return find_clear_match;
 
-    auto give_order_id = std::get<std::string>(give_order_iter->second.value);
+    auto give_order_id = std::get<std::string>(give_order_iter->second.value); // get order id of the requested order
 
+    // iterate over the ledger and check for the order
     find_clear_match = std::find_if(std::begin(m_attribute->orders), std::end(m_attribute->orders), [&](auto &iter){
         auto iter_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
         assert(iter_order);
@@ -169,24 +187,26 @@ auto CTradeEngine::GetOrderLedgerItrator(UmAtrMeta& order_atr) -> OrderIter {
     return find_clear_match;
 }
 
+// Get list of all the orders currently in the ledge
 auto CTradeEngine::GetAllOrderLists() -> void {
-    PqspIA sell_price_max_heap(cmp);
-    PqspIA buy_price_max_heap(cmp);
+    PqspIA sell_price_max_heap(cmp); // sort SELL order by price
+    PqspIA buy_price_max_heap(cmp); // sort BUY order by price
 
     for(auto &iter : m_attribute->orders) {
         auto list_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
         auto list_order_arg = list_order->GetOrderAttributes();
         switch (std::get<OrderAction>(list_order_arg[Attributes::Action].value))
         {
-            case OrderAction::BUY: buy_price_max_heap.emplace(iter); break;
-            case OrderAction::SELL: sell_price_max_heap.emplace(iter); break;
+            case OrderAction::BUY: buy_price_max_heap.emplace(iter); break; // BUY orders goes to buy max heap
+            case OrderAction::SELL: sell_price_max_heap.emplace(iter); break; // SELL orders goes to sell max heap
             default: break;
         }
     }
 
+    // display SELL orders 
     std::cout<<"SELL:\n";
     while(sell_price_max_heap.size()) {
-        auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(sell_price_max_heap.top());
+        auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(sell_price_max_heap.top()); // convert from abstract type to concrete types
         auto order_arg = order_obj->GetOrderAttributes();
         sell_price_max_heap.pop();
 
@@ -194,9 +214,10 @@ auto CTradeEngine::GetAllOrderLists() -> void {
             <<" "<< std::get<uint64_t>(order_arg[Attributes::Quantity].value)<<"\n";
     }
 
+    // display BUY orders
     std::cout<<"BUY:\n";
     while(buy_price_max_heap.size()) {
-        auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(buy_price_max_heap.top());
+        auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(buy_price_max_heap.top()); // convert from abstract type to concrete types
         auto order_arg = order_obj->GetOrderAttributes();
         buy_price_max_heap.pop();
 
@@ -205,11 +226,12 @@ auto CTradeEngine::GetAllOrderLists() -> void {
     }
 }
 
+// display call the transaction details.
 auto CTradeEngine::GetTransactionOutput() -> void {
     for (auto &iter : m_attribute->trade_orders)
     {
         auto iter_obj = std::dynamic_pointer_cast<CTradeTransaction>(iter);
-        iter_obj->ShowResult();
+        iter_obj->ShowResult(); // transaction objects is responsible for displaying output
     }
 }
 
