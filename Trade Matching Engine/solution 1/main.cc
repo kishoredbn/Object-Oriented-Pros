@@ -3,7 +3,7 @@
 int main()
 {
     spITradeInputControl control = std::make_shared<CTradeInputControl>();
-    control->InsertInput({
+    control->InsertInput({ // taking hardcoded input (can also be taken from standard input stream)
             {{Atr::Action, {OrderAction::BUY}}, {Atr::OrderType, {OrderType::GFD}}, {Atr::Price, {1000}}, {Atr::Quantity, {10}}, {Atr::OrderId, {"order1"}}},
             {{Atr::Action, {OrderAction::SELL}}, {Atr::OrderType, {OrderType::GFD}}, {Atr::Price, {900}}, {Atr::Quantity, {10}}, {Atr::OrderId, {"order2"}}},
             {{Atr::Action, {OrderAction::BUY}}, {Atr::OrderType, {OrderType::GFD}}, {Atr::Price, {1000}}, {Atr::Quantity, {10}}, {Atr::OrderId, {"order3"}}},
