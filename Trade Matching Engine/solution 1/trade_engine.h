@@ -2,7 +2,7 @@
 
 class ITradeEngine {
 public:
-    virtual auto PerformTrade(spITradeOrder) -> void = 0;
+    virtual auto PerformTrade(spITradeOrder) -> void = 0; // simple interface method to taken in input and simultaneously process output
     virtual ~ITradeEngine() {}
 };
 
