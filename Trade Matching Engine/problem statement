@@ -167,3 +167,6 @@ Your solution should:
 3. Be clear, concise and correct  - demonstrating common sense software engineering and the application of modern C++ skills and principles.
 4. Take into account usage in low latency scenarios
 5. Be scalable, in short where applicable the overall performance should not degrade as the number of inputs or actions increase
+
+Extended:
+Implement multithreading.
