@@ -1,5 +1,6 @@
 #pragma once
 
+// abstract obj of Trade Order
 class ITradeOrder;
 using spITradeOrder = std::shared_ptr<ITradeOrder>;
 class ITradeOrder {
@@ -10,9 +11,11 @@ public:
     virtual ~ITradeOrder(){}
 };
 
+// custom priority queue to sort orders by Pivot Attribute, example Price
 auto cmp = [](const spITradeOrder &left, const spITradeOrder &right) { return left->PivotAttribute() < right->PivotAttribute(); };
 using PqspIA = std::priority_queue<spITradeOrder, std::vector<spITradeOrder>, decltype(cmp)>;
 
+// abstract obj of Trade Trannsaction
 class ITradeTransaction {
 public:
     virtual auto ShowResult() const -> void = 0;
@@ -20,6 +23,7 @@ public:
 };
 using spITradeTransaction = std::shared_ptr<ITradeTransaction>;
 
+// Order type
 class CTradeOrder : public ITradeOrder {
 private:
     struct PimpOrderAttributes;
@@ -33,6 +37,7 @@ public:
     virtual auto PivotAttribute() const -> uint64_t override;
 };
 
+// Transaction type
 using tuple_transaction = std::tuple<std::string, uint64_t, uint64_t, std::string, uint64_t, uint64_t>;
 class CTradeTransaction : public ITradeTransaction {
 private:
