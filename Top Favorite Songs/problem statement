@@ -1,0 +1,7 @@
+Design a feature for a music app to show top 10 songs.
+
+Top 10 songs can be based on any property.
+Example, top 10 most listened songs, top 10 last listen songs, top 10 suggested songs etc.
+
+Extended:
+Implement features like reset list, remove item from list.
