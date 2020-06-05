@@ -3,9 +3,9 @@
 enum class Tag : uint8_t {STRING, INT}; // Types of Attributes
 using MusicArgVariant = std::variant<std::string, uint64_t>;
 
-#define ATTRIBUTE  CODE(author,  Tag::STRING) \
-                   CODE(name,    Tag::STRING) \
-                   CODE(release, TAG::INT)
+#define ATTRIBUTE  CODE(author,  STRING) \
+                   CODE(name,    STRING) \
+                   CODE(release, INT)
 
 #undef CODE
 #define CODE(__name, __type) __name,
@@ -16,16 +16,15 @@ enum class Attributes : uint64_t {  ATTRIBUTE // Expands here as enums
 using music = Attributes;
 
 #undef CODE
-#define CODE(__name, __type) case Attributes::__name: return __type;
+#define CODE(__name, __type) case Attributes::__name: return Tag::__type;
 constexpr Tag GetTagType(const Attributes attri) {
     switch(attri) {
-//        ATTRIBUTE // expands here as switch-case
-        case Attributes::author : return Tag::STRING;
-        case Attributes::name : return Tag::STRING;
+       ATTRIBUTE // expands here as switch-case
+        // case Attributes::author : return Tag::STRING;
+        // case Attributes::name : return Tag::STRING;
         default: return Tag::INT;
     }
 }
-
 
 struct MusicMetaType {
     MusicArgVariant value;
