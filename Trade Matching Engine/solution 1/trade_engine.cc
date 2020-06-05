@@ -14,8 +14,7 @@ auto CTradeEngine::PerformTrade(spITradeOrder order) -> void {
 
     if(!order) return;
 
-    auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(order);
-    auto order_atr = order_obj->GetOrderAttributes();
+    auto order_atr = order->GetOrderAttributes();
     auto order_atr_find = order_atr.find(Attributes::Action); // check used input for action
 
     if(order_atr_find == order_atr.end()) return; // if not a valid input exit function
@@ -56,8 +55,7 @@ auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
     UmExchange price_point_map; // helper reference map to exchange BUY & SELL orders, using references to orders
     price_point_map[order_atr_action_val] = {&order_price, &order_quantity, &order_orderid}; // enter new order details to reference map
     for(auto iter = m_attribute->orders.begin(); iter != m_attribute->orders.end(); iter++) { // for all orders in the ledger
-        auto order_list_each = std::dynamic_pointer_cast<CTradeOrder>(*iter); // get the concrete order type
-        auto order_list_atr = order_list_each->GetOrderAttributes(); // get the order attributes
+        auto order_list_atr = (*iter)->GetOrderAttributes(); // get the order attributes
 
         auto order_list_find = order_list_atr.find(Attributes::Action); // check for specific action types
         if(order_list_find != order_list_atr.end()) {
@@ -106,8 +104,7 @@ auto CTradeEngine::PerformModify(UmAtrMeta order_atr) -> void {
     if(find_clear_match == m_attribute->orders.end()) return; // if not valid exit
 
     UmAtrMeta new_order; // create a new order attribute map to store new order details
-    auto order_atr_change = std::dynamic_pointer_cast<CTradeOrder>(*find_clear_match);
-    auto order_atr_change_map = order_atr_change->GetOrderAttributes();
+    auto order_atr_change_map = (*find_clear_match)->GetOrderAttributes();
 
     // set all new order attribute details to attribute map
     new_order[Attributes::OrderType] = order_atr_change_map[Attributes::OrderType];
@@ -171,10 +168,9 @@ auto CTradeEngine::GetOrderLedgerItrator(UmAtrMeta& order_atr) -> OrderIter {
 
     // iterate over the ledger and check for the order
     find_clear_match = std::find_if(std::begin(m_attribute->orders), std::end(m_attribute->orders), [&](auto &iter){
-        auto iter_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
-        assert(iter_order);
+        assert(iter);
 
-        auto iter_attr_map = iter_order->GetOrderAttributes();
+        auto iter_attr_map = iter->GetOrderAttributes();
         auto iter_attr_find = iter_attr_map.find(Attributes::OrderId);
 
         if(iter_attr_find == iter_attr_map.end()) return false;
@@ -193,8 +189,7 @@ auto CTradeEngine::GetAllOrderLists() -> void {
     PqspIA buy_price_max_heap(cmp); // sort BUY order by price
 
     for(auto &iter : m_attribute->orders) {
-        auto list_order = std::dynamic_pointer_cast<CTradeOrder>(iter);
-        auto list_order_arg = list_order->GetOrderAttributes();
+        auto list_order_arg = iter->GetOrderAttributes();
         switch (std::get<OrderAction>(list_order_arg[Attributes::Action].value))
         {
             case OrderAction::BUY: buy_price_max_heap.emplace(iter); break; // BUY orders goes to buy max heap
@@ -206,7 +201,7 @@ auto CTradeEngine::GetAllOrderLists() -> void {
     // display SELL orders 
     std::cout<<"SELL:\n";
     while(sell_price_max_heap.size()) {
-        auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(sell_price_max_heap.top()); // convert from abstract type to concrete types
+        auto order_obj = sell_price_max_heap.top();
         auto order_arg = order_obj->GetOrderAttributes();
         sell_price_max_heap.pop();
 
@@ -217,7 +212,7 @@ auto CTradeEngine::GetAllOrderLists() -> void {
     // display BUY orders
     std::cout<<"BUY:\n";
     while(buy_price_max_heap.size()) {
-        auto order_obj = std::dynamic_pointer_cast<CTradeOrder>(buy_price_max_heap.top()); // convert from abstract type to concrete types
+        auto order_obj = buy_price_max_heap.top();
         auto order_arg = order_obj->GetOrderAttributes();
         buy_price_max_heap.pop();
 
@@ -230,8 +225,7 @@ auto CTradeEngine::GetAllOrderLists() -> void {
 auto CTradeEngine::GetTransactionOutput() -> void {
     for (auto &iter : m_attribute->trade_orders)
     {
-        auto iter_obj = std::dynamic_pointer_cast<CTradeTransaction>(iter);
-        iter_obj->ShowResult(); // transaction objects is responsible for displaying output
+        iter->ShowResult(); // transaction objects is responsible for displaying output
     }
 }
 
