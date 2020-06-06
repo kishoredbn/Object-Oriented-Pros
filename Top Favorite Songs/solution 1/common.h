@@ -10,4 +10,5 @@
 
 #include "song_attribute.h"
 #include "song.h"
+#include "song_factory.h"
 #include "music_manager.h"

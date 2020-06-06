@@ -28,6 +28,8 @@ auto CMusicManager::GetPlayList() -> vecSpISong {
 
 void CMusicManager::AddSongs(vvMusicAttribute& song_list) {
     assert(m_member != nullptr);
+
+    static SongFactory song_factory;
     
      for(auto &v_iter : song_list)
      {
@@ -36,7 +38,7 @@ void CMusicManager::AddSongs(vvMusicAttribute& song_list) {
          {
              song_map.emplace( std::get<0>(iter), MusicMetaType(std::get<1>(iter)));
          }
-         spISong song = std::make_shared<CSong>(song_map);
+         spISong song = song_factory.CreateSongObj(song_map);
          m_member->vSongs.emplace_back(song);
      }
 }
