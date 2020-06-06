@@ -39,6 +39,8 @@ auto CTradeEngine::PerformTrade(spITradeOrder order) -> void {
 // If trade is partially-possible, then update ledger accordingly
 auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
 
+    static OrderFactory order_factory;
+
     m_attribute->trade_orders.clear(); // remove any previous transaction history
 
     auto order_atr_action = order_atr[Attributes::Action];
@@ -82,8 +84,8 @@ auto CTradeEngine::PerformTransaction(UmAtrMeta order_atr) -> void {
         }
     }
 
-    // if new order is NNOT complete and is not of type IOC, then make an entry to the ledger
-    if(order_quantity && order_type != OrderType::IOC) m_attribute->orders.emplace_back(std::make_shared<CTradeOrder>(order_atr));
+    // if new order is NOT complete and is not of type IOC, then make an entry to the ledger
+    if(order_quantity && order_type != OrderType::IOC) m_attribute->orders.emplace_back(order_factory.CreateOrder(order_atr)); // call order Factory to create order type
     for(auto &iter : remove_orders) m_attribute->orders.erase(iter); // remove the existing completed orders from the ledger
 
     GetTransactionOutput(); // output transaction details, if any occured
@@ -101,6 +103,8 @@ auto CTradeEngine::PerformCancel(UmAtrMeta order_atr) -> void {
 auto CTradeEngine::PerformModify(UmAtrMeta order_atr) -> void {
     auto find_clear_match = GetOrderLedgerItrator(order_atr); // get ledger index iterator
 
+    static OrderFactory order_factory;
+
     if(find_clear_match == m_attribute->orders.end()) return; // if not valid exit
 
     UmAtrMeta new_order; // create a new order attribute map to store new order details
@@ -116,13 +120,15 @@ auto CTradeEngine::PerformModify(UmAtrMeta order_atr) -> void {
     m_attribute->orders.erase(find_clear_match); // remove old order entry
     
     // Remember: we work with only abstract type, NOT concrete types
-    spITradeOrder new_order_obj = std::make_shared<CTradeOrder>(new_order); // create new order abstract objects
+    spITradeOrder new_order_obj = order_factory.CreateOrder(order_atr); // create new order abstract objects
     m_attribute->orders.emplace_back(new_order_obj); // insert abstract type to the ledger
 }
 
 // Perform order exchange on order "references"
 // any changes on the order attributes directly changes orders in the ledger
 auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction ledger_curr_order_type) -> void {
+
+    OrderTransactionFactory order_transaction_factory;
 
     auto &buying_order = exchange_map[OrderAction::BUY]; // reference to BUY order from exchange map
     uint64_t *buying_order_price = std::get<0>(buying_order); // reference to map order price buying
@@ -153,7 +159,8 @@ auto CTradeEngine::PerformExchangeOrders(UmExchange &exchange_map, OrderAction l
                                                               *std::get<2>(exchange_map[Exchange(ledger_curr_order_type)]), // order id
                                                               *std::get<0>(exchange_map[Exchange(ledger_curr_order_type)]), // price of orders
                                                               min_quantity);                                                // quantity exchanged
-        m_attribute->trade_orders.emplace_back(std::make_shared<CTradeTransaction>(transaction_tuple));
+
+        m_attribute->trade_orders.emplace_back(order_transaction_factory.CreateTransactionObj(transaction_tuple));
     }
 }
 

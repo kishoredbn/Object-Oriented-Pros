@@ -13,5 +13,6 @@
 
 #include "order_attribute.h"
 #include "order_trade.h"
+#include "order_factory.h"
 #include "trade_engine.h"
 #include "order_input.h"
