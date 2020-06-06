@@ -7,6 +7,7 @@ class ISong {
 public:
     virtual auto GetAttribute() -> umMusicAttribute = 0;
     virtual auto CheckAttribute(vMusicAttribute&) -> bool = 0;
+    virtual ~ISong(){}
 };
 
 using spISong = std::shared_ptr<ISong>;
