@@ -16,7 +16,7 @@ enum class Fruit : uint64_t {
 
 #undef CODE
 #define CODE(__fruit, __type) + 1
-const uint8_t g_fruit_count = 0 +
+const uint8_t g_fruit_variety_count = 0 +
                               ATTRIBUTES + 0;
 
 enum class JuiceType : uint64_t {Standard, // made with 1 fruit
