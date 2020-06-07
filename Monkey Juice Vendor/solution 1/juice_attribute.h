@@ -33,6 +33,17 @@ constexpr const char* GetJuiceText(const Fruit &fruit) {
     return "None";
 }
 
+#undef FRUIT_ID_COUNTER
+#define FRUIT_ID_COUNTER  __COUNTER__
+#undef CODE
+#define CODE(__fruit, __text) case FRUIT_ID_COUNTER : return Fruit::__fruit;
+constexpr const Fruit GetFruitFromId(const int id) {
+    switch(id) {
+        ATTRIBUTES
+        default: return Fruit::Banana;
+    }
+}
+
 using vFruit = std::vector<Fruit>;
 using umFruit = std::unordered_map<Fruit, uint64_t>;
 using vJuiceType = std::vector<JuiceType>;

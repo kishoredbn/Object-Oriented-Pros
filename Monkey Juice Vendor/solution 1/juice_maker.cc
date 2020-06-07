@@ -217,16 +217,9 @@ auto AwesomeJuiceMaker::SplPrepareJuice() -> std::vector<Fruit> {
 auto AwesomeJuiceMaker::GetRandomFruit() -> Fruit {
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist_fruit_count(1, g_fruit_variety_count); // distribution in range [1, 6]
+    std::uniform_int_distribution<std::mt19937::result_type> dist_fruit_count(0, g_fruit_variety_count-1); // distribution in range [1, 6]
 
-    switch(dist_fruit_count(rng))
-    {
-        case 1: return Fruit::Banana;
-        case 2: return Fruit::Pineapple;
-        case 3: return Fruit::Apple;
-        case 4: return Fruit::Mango;
-        default: return Fruit::Banana;
-    }
+    return GetFruitFromId(dist_fruit_count(rng));
 }
 
 
