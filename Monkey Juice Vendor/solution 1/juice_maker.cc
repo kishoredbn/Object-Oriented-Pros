@@ -163,7 +163,8 @@ auto AwesomeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
     assert(m_member);
 
     std::vector<Fruit> ret;
-    while(true) {
+    int try_counter = 1000;
+    while(try_counter--) {
         auto fruit = GetRandomFruit();
         auto find_fruit = m_member->umfruits.find(fruit);
         if(find_fruit == m_member->umfruits.end()) continue;
@@ -182,7 +183,8 @@ auto AwesomeJuiceMaker::PrmPrepareJuice() -> std::vector<Fruit> {
 
     uint8_t count = 0;
     std::vector<Fruit> ret;
-    while(true) {
+    int try_counter = 1000;
+    while(try_counter--) {
         auto fruit = GetRandomFruit();
         auto find_fruit = m_member->umfruits.find(fruit);
         if(find_fruit == m_member->umfruits.end()) continue;
@@ -200,7 +202,8 @@ auto AwesomeJuiceMaker::SplPrepareJuice() -> std::vector<Fruit> {
 
     uint8_t count = 0;
     std::vector<Fruit> ret;
-    while(true) {
+    int try_counter = 1000;
+    while(try_counter--) {
         auto fruit = GetRandomFruit();
         auto find_fruit = m_member->umfruits.find(fruit);
         if(find_fruit == m_member->umfruits.end()) continue;
@@ -221,7 +224,6 @@ auto AwesomeJuiceMaker::GetRandomFruit() -> Fruit {
 
     return GetFruitFromId(dist_fruit_count(rng));
 }
-
 
 // void AwesomeJuiceMaker::SayFruitPreference(vFruit&) {
 // }

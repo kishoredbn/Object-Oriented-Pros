@@ -2,22 +2,22 @@
 
 static uint64_t g_unique_customer_id = 0;
 
-#define ATTRIBUTES CODE(Banana,    "Banana")    \
-                   CODE(Pineapple, "Pineapple") \
-                   CODE(Apple,     "Apple")     \
-                   CODE(Mango,     "Mango") 
+#define TYPES_OF_FRUITS CODE(Banana,    "Banana")    \
+                        CODE(Pineapple, "Pineapple") \
+                        CODE(Apple,     "Apple")     \
+                        CODE(Mango,     "Mango") 
 
 #undef CODE
 #define CODE(__fruit, __type) __fruit,
 enum class Fruit : uint64_t { 
-                                ATTRIBUTES
+                                TYPES_OF_FRUITS
                                 Default
                             };
 
 #undef CODE
 #define CODE(__fruit, __type) + 1
 const uint8_t g_fruit_variety_count = 0 +
-                              ATTRIBUTES + 0;
+                              TYPES_OF_FRUITS + 0;
 
 enum class JuiceType : uint64_t {Standard, // made with 1 fruit
                                  Premium,  // made with 2 fruits
@@ -27,7 +27,7 @@ enum class JuiceType : uint64_t {Standard, // made with 1 fruit
 #define CODE(__fruit, __text) case Fruit::__fruit: return __text;
 constexpr const char* GetJuiceText(const Fruit &fruit) {
     switch(fruit) {
-    ATTRIBUTES
+    TYPES_OF_FRUITS
     default: break;
     }
     return "None";
@@ -38,8 +38,8 @@ constexpr const char* GetJuiceText(const Fruit &fruit) {
 #undef CODE
 #define CODE(__fruit, __text) case FRUIT_ID_COUNTER : return Fruit::__fruit;
 constexpr const Fruit GetFruitFromId(const int id) {
-    switch(id) {
-        ATTRIBUTES
+    switch(id % g_fruit_variety_count) {
+        TYPES_OF_FRUITS
         default: return Fruit::Banana;
     }
 }
