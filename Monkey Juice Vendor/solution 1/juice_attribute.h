@@ -19,9 +19,9 @@ enum class Fruit : uint64_t {
 const uint8_t g_fruit_variety_count = 0
                               TYPES_OF_FRUITS + 0;
 
-enum class JuiceType : uint64_t {Standard, // made with 1 fruit
-                                 Premium,  // made with 2 fruits
-                                 Special}; // made with 3 fruits
+enum class JuiceType : uint64_t {Standard, // Juice made with 1 fruit
+                                 Premium,  // Juice made with 2 fruits
+                                 Special}; // Juice made with 3 fruits
 
 #undef CODE
 #define CODE(__fruit, __text) case Fruit::__fruit: return __text;
