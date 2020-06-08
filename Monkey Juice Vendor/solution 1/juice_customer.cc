@@ -61,9 +61,13 @@ void CCustomer::ConsumeJuice() {
     for (auto &v_iter : m_member->orders_served)
     {
         std::cout<<"Customer "<< m_member->id<<" is Served Juice: ";
+        if(v_iter.size())
         for(auto &iter : v_iter) std::cout<<GetJuiceText(iter)<<", ";
+        else std::cout<<"Nothing.";
         std::cout<<"\n";
     }
+    
+    m_member->orders_served.clear();
 }
 
 void CCustomerWithPreference::FruitPreference(std::vector<Fruit>&) {
