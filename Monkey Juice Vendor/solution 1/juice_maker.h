@@ -43,8 +43,7 @@ public:
 // Concrete: Magic Juice Maker : makes juice with whatever fruit is available in the busket
 class MagicJuiceMaker : public CommonJuiceMaker {
 protected:
-    // struct PimplMember;
-    // std::shared_ptr<PimplMember> m_member;
+    virtual auto StdPrepareJuiceWithNFruit(uint8_t) -> std::vector<Fruit>;
     virtual auto StdPrepareJuice() -> std::vector<Fruit> override;
     virtual auto PrmPrepareJuice() -> std::vector<Fruit> override;
     virtual auto SplPrepareJuice() -> std::vector<Fruit> override;
@@ -53,9 +52,8 @@ protected:
 // Concrete: Supreme Juice Maker : makes juice with preferential fruit order from the busket
 class SupremeJuiceMaker : public CommonJuiceMaker/*, public IJuiceMakerFruitChoice*/ {
 protected:
-    // struct PimplMember;
-    // std::shared_ptr<PimplMember> m_member;
     const vFruit fruit_preference = {Fruit::Banana, Fruit::Apple, Fruit::Mango, Fruit::Pineapple };
+    virtual auto StdPrepareJuiceWithNFruit(uint8_t) -> std::vector<Fruit>;
     virtual auto StdPrepareJuice() -> std::vector<Fruit> override;
     virtual auto PrmPrepareJuice() -> std::vector<Fruit> override;
     virtual auto SplPrepareJuice() -> std::vector<Fruit> override;
@@ -65,9 +63,8 @@ protected:
 // Concrete: Awesome Juice Maker : makes juice with randomly taken fruit from the busket
 class AwesomeJuiceMaker : public CommonJuiceMaker/*, public IJuiceMakerFruitChoice*/ {
 protected:
-    // struct PimplMember;
-    // std::shared_ptr<PimplMember> m_member;
     auto GetRandomFruit() -> Fruit;
+    virtual auto StdPrepareJuiceWithNFruit(uint8_t) -> std::vector<Fruit>;
     virtual auto StdPrepareJuice() -> std::vector<Fruit> override;
     virtual auto PrmPrepareJuice() -> std::vector<Fruit> override;
     virtual auto SplPrepareJuice() -> std::vector<Fruit> override;

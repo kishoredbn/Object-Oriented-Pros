@@ -60,51 +60,40 @@ void CommonJuiceMaker::GetOrder(ICustomer* customer) {
 }
 
 // class MagicJuiceMaker
-auto MagicJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
-    assert(m_member);
-
+auto MagicJuiceMaker::StdPrepareJuiceWithNFruit(uint8_t n=1) -> std::vector<Fruit> {
     std::vector<Fruit> ret;
+
+    uint8_t count = 1;
     for(auto &iter : m_member->umfruits ) {
         if(iter.second) {
             iter.second--;
             ret.emplace_back(iter.first);
-            break;
+            if(count++ >= n) break;
         }
     }
     return ret;
+}
+
+auto MagicJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
+    assert(m_member);
+    return StdPrepareJuiceWithNFruit();
 }
 
 auto MagicJuiceMaker::PrmPrepareJuice() -> std::vector<Fruit> {
-    std::vector<Fruit> ret;
-
-    uint8_t count = 0;
-    for(auto &iter : m_member->umfruits ) {
-        if(iter.second) {
-            iter.second--;
-            ret.emplace_back(iter.first);
-            if(count++ > 0) break;
-        }
-    }
-    return ret;
+    assert(m_member);
+    return StdPrepareJuiceWithNFruit(2);
 }
-auto MagicJuiceMaker::SplPrepareJuice() -> std::vector<Fruit> {
-    std::vector<Fruit> ret;
 
-    uint8_t count = 0;
-    for(auto &iter : m_member->umfruits ) {
-        if(iter.second) {
-            iter.second--;
-            ret.emplace_back(iter.first);
-            if(count++ > 1) break;
-        }
-    }
-    return ret;
+auto MagicJuiceMaker::SplPrepareJuice() -> std::vector<Fruit> {
+    assert(m_member);
+    return StdPrepareJuiceWithNFruit(3);
 }
 
 // class SupremeJuiceMaker
-auto SupremeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
+auto SupremeJuiceMaker::StdPrepareJuiceWithNFruit(uint8_t n=1) -> std::vector<Fruit> {
     assert(m_member);
 
+    uint8_t count = 1;
     std::vector<Fruit> ret;
     for(auto &iter : fruit_preference ) {
         auto find_fruit = m_member->umfruits.find(iter);
@@ -113,55 +102,33 @@ auto SupremeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
         if(find_fruit->second) {
             find_fruit->second--;
             ret.emplace_back(find_fruit->first);
-            break;
+            if(count++ >= n) break;
         }
     }
     return ret;
 }
 
-auto SupremeJuiceMaker::PrmPrepareJuice() -> std::vector<Fruit> {
+auto SupremeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
     assert(m_member);
+    return StdPrepareJuiceWithNFruit();
+}
 
-    uint8_t count = 0;
-    std::vector<Fruit> ret;
-    for(auto &iter : fruit_preference ) {
-        auto find_fruit = m_member->umfruits.find(iter);
-        if(find_fruit == m_member->umfruits.end()) continue;
-
-        if(find_fruit->second) {
-            find_fruit->second--;
-            ret.emplace_back(find_fruit->first);
-            if(count++ > 0) break;
-        }
-    }
-    return ret;
+auto SupremeJuiceMaker::PrmPrepareJuice() -> std::vector<Fruit> {
+   assert(m_member);
+    return StdPrepareJuiceWithNFruit(2);
 }
 
 auto SupremeJuiceMaker::SplPrepareJuice() -> std::vector<Fruit> {
     assert(m_member);
-
-    uint8_t count = 0;
-    std::vector<Fruit> ret;
-    for(auto &iter : fruit_preference ) {
-        auto find_fruit = m_member->umfruits.find(iter);
-        if(find_fruit == m_member->umfruits.end()) continue;
-
-        if(find_fruit->second) {
-            find_fruit->second--;
-            ret.emplace_back(find_fruit->first);
-            if(count++ > 1) break;
-        }
-    }
-    return ret;
+    return StdPrepareJuiceWithNFruit(3);
 }
 
 // void SupremeJuiceMaker::SayFruitPreference(vFruit&) {
 // }
 
 // class AwesomeJuiceMaker
-auto AwesomeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
-    assert(m_member);
-
+auto AwesomeJuiceMaker::StdPrepareJuiceWithNFruit(uint8_t n=1) -> std::vector<Fruit> {
+    uint8_t count = 1;
     std::vector<Fruit> ret;
     int try_counter = 1000;
     while(try_counter--) {
@@ -172,49 +139,24 @@ auto AwesomeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
         if(find_fruit->second) {
             find_fruit->second--;
             ret.emplace_back(find_fruit->first);
-            break;
+            if(count++ >= n) break;
         }
     }
     return ret;
+}
+
+auto AwesomeJuiceMaker::StdPrepareJuice() -> std::vector<Fruit> {
+    assert(m_member);
+    return StdPrepareJuiceWithNFruit();
 }
 
 auto AwesomeJuiceMaker::PrmPrepareJuice() -> std::vector<Fruit> {
     assert(m_member);
-
-    uint8_t count = 0;
-    std::vector<Fruit> ret;
-    int try_counter = 1000;
-    while(try_counter--) {
-        auto fruit = GetRandomFruit();
-        auto find_fruit = m_member->umfruits.find(fruit);
-        if(find_fruit == m_member->umfruits.end()) continue;
-
-        if(find_fruit->second) {
-            find_fruit->second--;
-            ret.emplace_back(find_fruit->first);
-            if(count++ > 0) break;
-        }
-    }
-    return ret;
+    return StdPrepareJuiceWithNFruit(2);
 }
 auto AwesomeJuiceMaker::SplPrepareJuice() -> std::vector<Fruit> {
     assert(m_member);
-
-    uint8_t count = 0;
-    std::vector<Fruit> ret;
-    int try_counter = 1000;
-    while(try_counter--) {
-        auto fruit = GetRandomFruit();
-        auto find_fruit = m_member->umfruits.find(fruit);
-        if(find_fruit == m_member->umfruits.end()) continue;
-
-        if(find_fruit->second) {
-            find_fruit->second--;
-            ret.emplace_back(find_fruit->first);
-            if(count++ > 1) break;
-        }
-    }
-    return ret;
+    return StdPrepareJuiceWithNFruit(3);
 }
 
 auto AwesomeJuiceMaker::GetRandomFruit() -> Fruit {
