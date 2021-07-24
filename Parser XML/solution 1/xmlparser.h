@@ -8,8 +8,8 @@ class IObject;
 
 // representation of tags and values
 struct Attribute {
-        std::string tag;
-        std::string value;
+    std::string tag;
+    std::string value;
     bool Reset() { tag = std::string(); value=std::string(); return true;}
 };
 
@@ -17,7 +17,7 @@ struct Attribute {
 using XmlObjects = std::vector<std::shared_ptr<IObject>>;
 using Attributes = std::vector<Attribute>;
 
-// union of tag-values and Xml-sub-objects
+// struct of tag-values and Xml-sub-objects
 struct XmlValue {
     std::string tag_value;
     XmlObjects sub_objects;
