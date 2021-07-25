@@ -315,6 +315,10 @@ XmlExpressionHandler::Reset() {
     pending_str = "";
     pending_obj = m_xml_obj = nullptr;
     pending_obj_list = std::stack<std::shared_ptr<IObject>>();
+
+    // reinitialize XML obj
+    m_xml_obj = std::make_shared<MasterObject>();
+    pending_obj_list.push(m_xml_obj);
 }
 
 void
@@ -322,14 +326,16 @@ XmlExpressionHandler::PrintXml() {
     if(!m_xml_obj) {
         std::cout << "Check Xml file again. Cannot print.\n";
     }
-    
-    PrintRecursive(m_xml_obj, 0);
+
+    if(m_xml_obj->GetSubObjects().size())
+        PrintRecursive(m_xml_obj, 0);
 }
 
 void
 XmlExpressionHandler::PrintRecursive(const std::shared_ptr<IObject> &obj, const int steps) {
     if(!obj) return;
     
+    if(steps)
     std::cout << "\n";
     
     for (auto i=0; i<steps*space_shift; i++) {
