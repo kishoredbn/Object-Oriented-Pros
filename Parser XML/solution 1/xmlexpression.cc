@@ -34,7 +34,7 @@ XmlExpressionHandler::ParseLine(const std::string &input) {
     switch (pending_chr_to_read) {
         case '<': {
             if(input.size() <= read_next_chr_index) { // not enough data to process futher
-                return true;
+                return false;
             }
             else {
                 pending_chr_to_read = '\0'; // have enough data to process
@@ -72,10 +72,15 @@ XmlExpressionHandler::ParseLine(const std::string &input) {
             if(input.size() <= read_next_chr_index) { // not enough data to process futher
                 return true;
             }
+            bool ret = false;
+
+            if(pending_obj_state) 
+                ret = ProcessAttribute(std::string(1, pending_chr_to_read) + input.substr(read_next_chr_index));
+            else
+                ret = ProcessObjValue(std::string(1, pending_chr_to_read) + input.substr(read_next_chr_index));
+
             pending_chr_to_read = '\0';
-            if(pending_obj_state) return ProcessAttribute(std::string(1, pending_chr_to_read) + input.substr(read_next_chr_index));
-            return ProcessObjValue(std::string(1, pending_chr_to_read) + input.substr(read_next_chr_index));
-            break;
+            return ret; // break
         }
     }
 
@@ -196,15 +201,21 @@ XmlExpressionHandler::ParseClosingObj(const std::string &str) {
             if(iter == '>') break;
             closing_tag_name+= iter;
         }
+
+        if(!closing_tag_name.size()) return false;
+
         if(!pending_obj) {
             pending_obj = pending_obj_list.top();
             pending_obj_list.pop();
         }
+
+        if(!pending_obj_list.size()) return false;
+
         if(pending_obj->GetTagName() == closing_tag_name) {
             pending_obj_list.top()->SetSubObject(pending_obj);
             pending_obj = nullptr;
+            return true;
         }
-        return true;
     }
     return false;
 }
@@ -253,6 +264,8 @@ XmlExpressionHandler::ProcessObj(const std::string &str) {
 bool
 XmlExpressionHandler::ProcessAttribute(const std::string &str) {
     
+    if(!pending_obj) return false;
+
     bool b_value_reading = false;
     auto size_str = str.size();
     std::string value_arg = "", arg = "";
@@ -289,13 +302,15 @@ XmlExpressionHandler::ProcessAttribute(const std::string &str) {
 bool
 XmlExpressionHandler::ProcessObjValue(const std::string &str) {
 
+    if(!pending_obj) return false;
+
     uint32_t str_size = str.size();
     if (str.size()) {
         for (uint32_t index = 0; index < str_size; index++ )
         {
             if (str[index] == '<') {
                 if(++index < str_size && str[index] == '/') {
-                    if (pending_obj) pending_obj->SetXmlValue(pending_str);
+                    pending_obj->SetXmlValue(pending_str);
                     pending_str.clear();
                     return ParseClosingObj(str.substr(index+1));
                 }
