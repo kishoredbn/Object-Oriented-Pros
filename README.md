@@ -1,13 +1,13 @@
 # Object-Oriented-Pros
 This is a repository specifically for showcasing Object Oriented Designs, Patterns and Principles. 
 
-One of the big hurdle with learning Object-Oriented programming is finding problems to practice. While you see lot of websites curates algorithms and DS problems, which are good-to-learn, but seldom used in real world software development. I think practicing OO has more practical implications at work. This repository addresses that issue.
+One of the big hurdle with learning Object-Oriented programming is finding interesting problems to practice. While you see lot of websites has intense algorithms and DS problems which are good-to-learn, but seldom they are used in real world software development. I think practicing OO has more practical implications at work. This repository addresses that by curating different object oriented problems from internet.
 
-Interesting problems will be shared in this repository for practicing, and welcome contributors to colleborate so that others can see, discuss, get design ideas to learn, practice and get better at it.
+Here you will finnd interesting problems for practicing, and welcome contributors to colleborate so that others can see, discuss, get design ideas to learn, practice and get better at it. This repository is great for cs students, interns and engineers to practice object oriented programming and think through design ideas. Also, a great place to prectice Test-Driven-Development (unit test is a must to submit new code - 7/25/2021).
 
-Designing solutions are always personal choice, and should remain subjective topics. There can be multiple approaches to solve the same problem.
+Design choices are personal and should remain subjective topics. There can be multiple approaches to solve the same problem.
 
-Language: Not Specific to any language. 
+Language: Not Specific to any language, if it comes with Unit Tests. 
 
 Core ideas:
 - Collaborate: Share solutions and ideas.
