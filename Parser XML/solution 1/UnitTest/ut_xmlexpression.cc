@@ -36,6 +36,67 @@ TEST_F(XmlExpressionFixtures, TestParsingType2) {
     EXPECT_EQ(true, ParseLine("<?xml-stylesheet type = \"text/xsl\" href = \"xslplanes.2.xsl\" ?>"));
 }
 
+// Unit-Test 3: 
+TEST_F(XmlExpressionFixtures, TestParsingType3) {
+    EXPECT_EQ(false, ParseLine("of the world.</description>"));
+}
+
+// Unit-Test 4: 
+TEST_F(XmlExpressionFixtures, TestParsingType4) {
+    EXPECT_EQ(false, ParseLine("</description>of the world.</description>"));
+}
+
+// Unit-Test 5:
+TEST_F(XmlExpressionFixtures, TestParsingType5) {
+    EXPECT_EQ(false, ParseLine("<</description></description>"));
+}
+
+// Unit-Test 6:
+TEST_F(XmlExpressionFixtures, TestParsingType6) {
+    EXPECT_EQ(true, ParseLine("<description><</description>"));
+}
+
+// Unit-Test 7:
+TEST_F(XmlExpressionFixtures, TestParsingType7) {
+    EXPECT_EQ(false, ParseLine("</description></description>"));
+}
+
+// Unit-Test 8:
+TEST_F(XmlExpressionFixtures, TestParsingType8) {
+    EXPECT_EQ(false, ParseLine("of the world."));
+}
+
+// Unit-Test 9:
+TEST_F(XmlExpressionFixtures, TestParsingType9) {
+    EXPECT_EQ(false, ParseLine(""));
+}
+
+// Unit-Test 10:
+TEST_F(XmlExpressionFixtures, TestParsingType10) {
+    EXPECT_EQ(false, ParseLine("</>"));
+}
+
+// Unit-Test 11:
+TEST_F(XmlExpressionFixtures, TestParsingType11) {
+    EXPECT_EQ(false, ParseLine("<>"));
+}
+
+// Unit-Test 12:
+TEST_F(XmlExpressionFixtures, TestParsingType12) {
+    EXPECT_EQ(false, ParseLine("<"));
+}
+
+// Unit-Test 13:
+TEST_F(XmlExpressionFixtures, TestParsingType13) {
+    EXPECT_EQ(true, ParseLine(">"));
+}
+
+// Unit-Test 14:
+TEST_F(XmlExpressionFixtures, TestParsingType14) {
+    EXPECT_EQ(false, ParseLine("<??>"));
+}
+
+// main() trigger
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
