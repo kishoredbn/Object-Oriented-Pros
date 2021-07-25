@@ -39,3 +39,4 @@ settings.json
 
 #repeat folder
 repeat/*
+build/*
