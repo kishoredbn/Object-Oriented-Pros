@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 struct Key;
 struct THash;
 struct TEqual;
