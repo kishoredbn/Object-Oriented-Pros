@@ -18,3 +18,4 @@ FetchContent_MakeAvailable(GoogleTest)
 
 enable_testing()
 add_subdirectory(Parser\ XML)
+add_subdirectory(LRU\ Cache)
