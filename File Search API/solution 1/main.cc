@@ -4,6 +4,7 @@
 #include "file_manager_ext.h"
 
 #include <memory> 
+#include <cassert>
 #include <iostream>
 #include <algorithm> 
 
