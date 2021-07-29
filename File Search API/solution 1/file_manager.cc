@@ -1,5 +1,8 @@
 #include "file_manager.h"
 
+#include <cassert>
+#include <algorithm> 
+
 struct FileManager::PimpFileManager {
     std::vector<spIFile> container;
 };
