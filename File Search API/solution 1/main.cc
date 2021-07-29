@@ -4,6 +4,7 @@
 #include "file_manager_ext.h"
 
 #include <iostream>
+#include <memory> 
 
 template<typename T>
 void Display(const std::vector<std::shared_ptr<IFile>> &files)
