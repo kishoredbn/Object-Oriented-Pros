@@ -1,5 +1,9 @@
 #pragma once
 
+#include "file_manager.h"
+
+#include <vector>
+
 // extending FileManager to implememnt Search OR and AND
 class FileManagerV2 : public FileManager {
 private:

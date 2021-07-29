@@ -1,5 +1,9 @@
-#include "common.h"
 #include "file_manager_ext.h"
+#include "file.h"
+#include "file_manager.h"
+
+#include <vector>
+#include <unordered_set>
 
 struct FileManagerV2::THash {
     size_t operator()(const spIFile &file) const {
@@ -26,7 +30,7 @@ auto FileManagerV2::SearchOr(std::vector<SearchBase> vsearch) -> std::vector<spI
     
     std::unordered_set<spIFile, THash, TEqual> unique_entries; // store NO duplicates
     for (auto &iter : vsearch) {
-        auto files = Search(iter);
+        auto files = SearchFiles(iter);
         for(auto file : files) {
             unique_entries.emplace(file);
         }
@@ -43,10 +47,10 @@ auto FileManagerV2::SearchAnd(std::vector<SearchBase> vsearch) -> std::vector<sp
     if(vsearch.empty()) return ret;
     
     auto iter = vsearch.begin();
-    std::vector<spIFile> entries1 = Search(*iter); // get first set of Files following 1st search criteria
+    std::vector<spIFile> entries1 = SearchFiles(*iter); // get first set of Files following 1st search criteria
     for (++iter; iter != vsearch.end(); iter++) {
         ret.clear();
-        auto entries2 = Search(*iter); // get N set of files following Nth search criteria
+        auto entries2 = SearchFiles(*iter); // get N set of files following Nth search criteria
         
         for (auto &file1 : entries1)
             for (auto &file2 : entries2)

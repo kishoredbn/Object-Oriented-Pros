@@ -1,4 +1,3 @@
-#include "common.h"
 #include "file_manager.h"
 
 struct FileManager::PimpFileManager {
@@ -20,7 +19,7 @@ auto FileManager::AddFiles(std::vector<spIFile> vifiles) -> void {
 }
 
 // Search for files in the file manager
-auto FileManager::Search(SearchBase search_base) -> std::vector<spIFile> {
+auto FileManager::SearchFiles(SearchBase search_base) -> std::vector<spIFile> {
     std::vector<spIFile> ret;
 
     auto [search_attribute_type, search_attribute_value] = search_base.metadata;
