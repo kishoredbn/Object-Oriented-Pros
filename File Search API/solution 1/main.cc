@@ -3,8 +3,9 @@
 #include "file_attributes.h"
 #include "file_manager_ext.h"
 
-#include <iostream>
 #include <memory> 
+#include <iostream>
+#include <algorithm> 
 
 template<typename T>
 void Display(const std::vector<std::shared_ptr<IFile>> &files)
