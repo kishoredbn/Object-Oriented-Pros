@@ -4,6 +4,7 @@
 #include "file_attributes.h"
 
 #include <vector>
+#include <memory> 
 
 class IFileManager {
 public:
