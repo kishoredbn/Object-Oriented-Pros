@@ -3,6 +3,7 @@
 #include "file_manager.h"
 
 #include <vector>
+#include <cassert>
 #include <unordered_set>
 
 struct FileManagerV2::THash {
