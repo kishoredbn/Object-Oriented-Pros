@@ -1,5 +1,11 @@
 #pragma once
 
+#include "file_attributes.h"
+
+#include <tuple>
+#include <vector>
+#include <unordered_map>
+
 class IFile {
 public:
     virtual void SetFileAttributes(std::unordered_map<Attributes, MetaValues>  attributes) = 0;

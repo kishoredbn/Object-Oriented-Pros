@@ -1,9 +1,14 @@
 #pragma once
 
+#include "file.h"
+#include "file_attributes.h"
+
+#include <vector>
+
 class IFileManager {
 public:
     virtual auto AddFiles(std::vector<spIFile> vifiles) -> void = 0;
-    virtual auto Search(SearchBase search_base) -> std::vector<spIFile> = 0;
+    virtual auto SearchFiles(SearchBase search_base) -> std::vector<spIFile> = 0;
     virtual ~IFileManager(){}
 };
 
@@ -17,5 +22,5 @@ private:
 public:
     FileManager();
     virtual auto AddFiles(std::vector<spIFile> vifiles) -> void override;
-    virtual auto Search(SearchBase search_base) -> std::vector<spIFile> override;
+    virtual auto SearchFiles(SearchBase search_base) -> std::vector<spIFile> override;
 };

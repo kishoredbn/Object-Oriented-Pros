@@ -1,5 +1,8 @@
-#include "common.h"
 #include "file.h"
+
+#include <vector>
+#include <memory>
+#include <unordered_map>
 
 struct File::PimpFile : public FileAttributes {
         PimpFile(std::unordered_map<Attributes, MetaValues> attributes)

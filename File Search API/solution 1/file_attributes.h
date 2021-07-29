@@ -1,5 +1,10 @@
 #pragma once
 
+#include <string>
+#include <tuple>
+#include <variant>
+#include <unordered_map>
+
 enum class Tag : uint8_t {STRING, INT}; // Type of file attributes
 
 #define ATTRIBUTE CODE(Name,       Tag::STRING) \

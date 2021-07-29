@@ -1,6 +1,9 @@
-#include <iostream>
+#include "file.h"
+#include "file_manager.h"
+#include "file_attributes.h"
+#include "file_manager_ext.h"
 
-#include "common.h"
+#include <iostream>
 
 template<typename T>
 void Display(const std::vector<std::shared_ptr<IFile>> &files)
@@ -12,8 +15,8 @@ void Display(const std::vector<std::shared_ptr<IFile>> &files)
         auto f = std::dynamic_pointer_cast<T>(iter);
         auto attr = f->GetFileAttributes();
         std::cout<< std::get<std::string>(attr[Atr::Name].value);
-        std::cout<<std::get<std::string>(attr[Atr::Extension].value);
-        std::cout<<" "<<std::get<uint64_t>(attr[Atr::Size].value)<<"\n";
+        std::cout<< std::get<std::string>(attr[Atr::Extension].value);
+        std::cout<<" "<< std::get<uint64_t>(attr[Atr::Size].value)<<"\n";
     }
     std::cout<<"--\n";
 }
@@ -54,16 +57,16 @@ int main()
     FileManager fm;
     fm.AddFiles(vifiles); // Remember : Always to work with abstract types
 
-    Display<File>(fm.Search(SearchBy(Attributes::Extension, {".mp3"})));
-    Display<File>(fm.Search(SearchBy(Attributes::Size, {24})));
-    Display<File>(fm.Search(SearchBy(Attributes::Name, {"apple"})));
-    Display<File>(fm.Search(SearchBy(Attributes::Name, {"nokia"})));
+    Display<File>(fm.SearchFiles(SearchBy(Attributes::Extension, {".mp3"})));
+    Display<File>(fm.SearchFiles(SearchBy(Attributes::Size, {24})));
+    Display<File>(fm.SearchFiles(SearchBy(Attributes::Name, {"apple"})));
+    Display<File>(fm.SearchFiles(SearchBy(Attributes::Name, {"nokia"})));
     
     // File manager extension
     FileManagerV2 fm2;
     fm2.AddFiles(vifiles); // Remember : Always to work with abstract types
 
-    Display<File>(fm2.Search(SearchBy(Attributes::Name, {"nokia"}))); // simple search
+    Display<File>(fm2.SearchFiles(SearchBy(Attributes::Name, {"nokia"}))); // simple search
     Display<File>(fm2.SearchOr({SearchBy{Attributes::Extension, {".mp3"}}, SearchBy{Attributes::Name, {"apple"}}})); // search with OR condition
     Display<File>(fm2.SearchOr({SearchBy{Attributes::Extension, {".mp4"}}, SearchBy{Attributes::Name, {"blackberry"}}})); // search with OR condition
 
