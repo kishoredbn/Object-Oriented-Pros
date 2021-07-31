@@ -42,15 +42,16 @@ TEST_F(FileManagerExtFixtures, TestFileManagerCase1) {
     const std::string file_ext_mp3 = ".mp3";
     const std::string file_ext_mp4 = ".mp4";
     const std::string file_name_apple = "apple"; 
+    const std::string file_name_blackberry = "blackberry"; 
     const std::string file_name_nokia = "nokia"; 
     const Attributes attr_search_ext = Attributes::Extension;
     const Attributes attr_search_name = Attributes::Name;
 
     if(!file_manager) {
-        auto vfile_search_mp3 = file_manager->SearchFiles(SearchBy(attr_search_ext, {file_ext_mp3}));
+        auto vfile_search_mp3 = file_manager->SearchFiles(SearchBy(attr_search_name, {file_name_blackberry}));
         for (auto &file : vfile_search_mp3) {
             auto attr = file->GetFileAttributes();
-            EXPECT_EQ(std::get<std::string>(attr[attr_search_ext].value), file_ext_mp3);
+            EXPECT_EQ(std::get<std::string>(attr[attr_search_name].value), file_name_blackberry);
         }
         
         auto vfile_search_mp4 = file_manager->SearchFiles(SearchBy(attr_search_ext, {file_ext_mp4}));
